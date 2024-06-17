@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>gazebo_car_description</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="weibingchuan20@gmail.com">dssl</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclpy</depend>
+  <depend>urdf</depend>
+  <depend>angles</depend>
+  <depend>gazebo_dev</depend>
+  <depend>gazebo_ros</depend>
+  <depend>controller_manager</depend>
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>std_msgs</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>gazebo_ros_pkgs</depend>
+  <depend>ros2launch</depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <build_depend>nav2_common</build_depend>
+  
+  <build_depend>navigation2</build_depend>
+  <build_depend>launch_ros</build_depend>  
+
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>navigation2</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_localization</exec_depend>  
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

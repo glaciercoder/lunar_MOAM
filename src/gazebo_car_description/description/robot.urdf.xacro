@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="gazebo_car_description">
+    
+    <!-- xacro:arg name="robot_name" default="robot"/ -->
+    <xacro:arg name="namespace" default=""/>
+        
+    <xacro:arg name="robot_material_name" default="Green"/>
+    <xacro:arg name="robot_material_color_rgb" default="0 1 0 1"/>
+
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/inertial_macros.xacro" />
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/lidar.xacro" />
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/camera.xacro" />
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/imu_sensor.xacro" />
+    
+    <!-- xacro:include filename="$(find gazebo_car_description)/description/xacro/depth_camera.xacro" / -->
+
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/gazebo_control.xacro" />
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/robot_core.xacro" />
+</robot>
