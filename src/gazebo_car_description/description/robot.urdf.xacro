@@ -3,7 +3,7 @@
     
     <!-- xacro:arg name="robot_name" default="robot"/ -->
     <xacro:arg name="namespace" default=""/>
-        
+    <xacro:arg name="robot_name" default=""/>
     <xacro:arg name="robot_material_name" default="Green"/>
     <xacro:arg name="robot_material_color_rgb" default="0 1 0 1"/>
 
@@ -16,4 +16,5 @@
 
     <xacro:include filename="$(find gazebo_car_description)/description/xacro/gazebo_control.xacro" />
     <xacro:include filename="$(find gazebo_car_description)/description/xacro/robot_core.xacro" />
+    <xacro:include filename="$(find gazebo_car_description)/description/xacro/mid_360.xacro" />
 </robot>

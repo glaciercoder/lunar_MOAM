@@ -167,7 +167,7 @@ def generate_launch_description():
         robot_description_config = xacro.process_file(
             def_urdf,
             mappings={
-                # "robot_name": robot['name'],
+                "robot_name": robot['name'],
                 "namespace": namespace,
                 "robot_material_name": robot['color_name'],
                 "robot_material_color_rgb": robot['color_rgb'],
