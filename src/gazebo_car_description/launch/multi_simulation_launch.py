@@ -204,15 +204,15 @@ def generate_launch_description():
         arrNodes.append(spawn_entity_cmd)
 
         pkg_path = os.path.join(get_package_share_directory(def_package_name))
-        robot_localization_node = Node(
-            package='robot_localization',
-            executable='ekf_node',
-            name='ekf_filter_node',
-            namespace=namespace,
-            output='screen',
-            parameters=[os.path.join(pkg_path, 'config/ekf.yaml')]#, {'use_sim_time': use_sim_time }]
-        )    
-        arrNodes.append(robot_localization_node)
+        # robot_localization_node = Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     namespace=namespace,
+        #     output='screen',
+        #     parameters=[os.path.join(pkg_path, 'config/ekf.yaml')]#, {'use_sim_time': use_sim_time }]
+        # )    
+        # arrNodes.append(robot_localization_node)
 
         # bringup_cmd = IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource(os.path.join(def_launch_dir, 'bringup_launch.py')),
@@ -242,6 +242,17 @@ def generate_launch_description():
         )
         arrNodes.append(joint_state_publisher_node)
 
+        # Lidar odom node
+        lidar_odom_node = Node(
+            package='lidar_odom',
+            executable='lidar_odom',
+            name='lidar_odom',
+            output='screen',
+            parameters=[params],
+        )
+        arrNodes.append(lidar_odom_node)
+
+        # Publish world to odom, used when no relative localization is given
         node_tf = launch_ros.actions.Node( 
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -249,7 +260,7 @@ def generate_launch_description():
                 'world', namespace + '/odom'],
             output='screen')
 
-        arrNodes.append(node_tf)         
+        # arrNodes.append(node_tf)         
 
     # ---
 
