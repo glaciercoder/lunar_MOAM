@@ -251,10 +251,9 @@ class LidarOdometryNode : public rclcpp::Node
           // RCLCPP_INFO(this->get_logger(), "Resgister Finished");
           T = T * Eigen::Isometry3d(reg.getFinalTransformation().cast<double>());
           // Convert Eigen matrix to string for logging
-          std::stringstream ss;
-          ss << T.matrix();
-          // Use RCLCPP_INFO to log the matrix
-          RCLCPP_INFO(this->get_logger(), "Isometry matrix:\n%s", ss.str().c_str());
+          // std::stringstream ss;
+          // ss << T.matrix();
+          // RCLCPP_INFO(this->get_logger(), "Isometry matrix:\n%s", ss.str().c_str());
           publish_relative_odometry();
           publish_tf();
         }
