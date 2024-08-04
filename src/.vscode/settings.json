@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "functional": "cpp",
-        "core": "cpp"
+        "core": "cpp",
+        "__functional_03": "cpp"
     }
 }
