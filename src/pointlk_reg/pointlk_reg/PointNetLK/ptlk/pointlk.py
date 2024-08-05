@@ -55,6 +55,8 @@ class PointLK(torch.nn.Module):
         a1 = torch.eye(4).view(1, 4, 4).expand(p1.size(0), 4, 4).to(p1) # [B, 4, 4]
         if p0_zero_mean:
             p0_m = p0.mean(dim=1) # [B, N, 3] -> [B, 3]
+            print("mean of p0:")
+            print(p0_m)
             a0[:, 0:3, 3] = p0_m
             q0 = p0 - p0_m.unsqueeze(1)
         else:
@@ -63,6 +65,8 @@ class PointLK(torch.nn.Module):
         if p1_zero_mean:
             #print(numpy.any(numpy.isnan(p1.numpy())))
             p1_m = p1.mean(dim=1) # [B, N, 3] -> [B, 3]
+            print("mean of p1:")
+            print(p1_m)
             a1[:, 0:3, 3] = -p1_m
             q1 = p1 - p1_m.unsqueeze(1)
         else:
