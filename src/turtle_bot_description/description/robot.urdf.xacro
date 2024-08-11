@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="turtle_bot">
+    
+    <!-- xacro:arg name="robot_name" default="robot"/ -->
+    <xacro:arg name="namespace" default=""/>
+    <xacro:arg name="robot_name" default=""/>
+    <xacro:arg name="robot_material_name" default="Green"/>
+    <xacro:arg name="robot_material_color_rgb" default="0 1 0 1"/>
+
+    <xacro:include filename="$(find turtle_bot_description)/description/xacro/inertial_macros.xacro" />
+    <!-- <xacro:include filename="$(find turtle_bot_description)/description/xacro/imu_sensor.xacro" /> -->
+    
+    <!-- xacro:include filename="$(find turtle_bot_description)/description/xacro/depth_camera.xacro" / -->
+    
+
+    <xacro:include filename="$(find turtle_bot_description)/description/xacro/gazebo_control.xacro" />
+    <xacro:include filename="$(find turtle_bot_description)/description/xacro/robot_core.xacro" />
+    <xacro:include filename="$(find turtle_bot_description)/description/xacro/mid_360.xacro" />
+</robot>

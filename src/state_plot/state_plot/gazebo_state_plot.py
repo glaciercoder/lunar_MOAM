@@ -15,14 +15,18 @@ class ModelStatePlot(Node):
         # Multi threads
         self._lock = threading.Lock()
         self.cbg = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
-        # Model state client
-        self.cli = self.create_client(GetEntityState, '/gazebo/get_entity_state')
-        while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
+
         self.req = GetEntityState.Request()
-        self.robot_name = 'robot1'
-        self.model_state = None
-        self.model_state_future = None
+        # Robot information
+        self.robot_num  = 2
+        self.robot_name = [('robot'+ str(i+1)) for i in range(self.robot_num)]
+        self.model_states = np.zeros((self.robot_num, 3)) # robot_num * 3 (x, y, yaw)
+        self.model_state_futures = [None for i in range(self.robot_num)]
+        self.model_state_clients = [self.create_client(GetEntityState, '/gazebo/get_entity_state')  for i in range(self.robot_num)]
+        # Wait for client
+        for i in range(self.robot_num):
+            while not self.model_state_clients[i].wait_for_service(timeout_sec=1.0):
+                self.get_logger().info('service not available, waiting again...')
         # Timer
         timer_period = 0.5
         self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=self.cbg)
@@ -31,22 +35,31 @@ class ModelStatePlot(Node):
         self.t = [0]
         self.x = [0]
 
-        
-
-    def send_request(self, robot_name):
-        self.req.name = robot_name
+    def send_request(self):
         self.req.reference_frame = 'world'
-        return self.cli.call_async(self.req)
+        for i in range(self.robot_num):
+            self.req.name = self.robot_name[i]
+            self.model_state_futures = self.model_state_clients[i].call_async(self.req)
+        return
     
     def timer_callback(self):  
         with self._lock:
-            if self.model_state_future.done():
-                self.model_state = self.model_state_future.result()
-                self.t.append(self.model_state.header.stamp.sec)
-                self.x.append(self.model_state.state.pose.position.x)
-            self.model_state_future = self.send_request(self.robot_name)
+            for i in range(self.robot_num):
+                if self.model_state_futures[i].done():
+                    model_state = self.model_state_future.result()
+                    self._decode(model_state. self.model_states[i])
+                    self.t.append(self.model_state.header.stamp.sec + self.model_state.header.stamp.nanosec * 1e-9)
+                    self.x.append(self.model_states(i, 0))
+            self.send_request()
 
-    def plt_func(self, _):
+    # Extract information from msg
+    def _decode(self, model_state, target_state):
+        target_state[0] = model_state.state.pose.position.x
+        target_state[0] = model_state.state.pose.position.y
+        target_state[0] = model_state.state.pose.position.z # Need to change
+
+
+    def plt_func(self, _):  
         """Function for for adding data to axis.
 
         Args:
@@ -72,7 +85,7 @@ class ModelStatePlot(Node):
 def main():
     rclpy.init()
     model_plot_node = ModelStatePlot()
-    model_plot_node.model_state_future = model_plot_node.send_request(model_plot_node.robot_name)
+    model_plot_node.send_request()
     executor = rclpy.executors.MultiThreadedExecutor()
     executor.add_node(model_plot_node)
     thread = threading.Thread(target=executor.spin, daemon=True)

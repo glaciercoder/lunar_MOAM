@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <gazebo>
+        <plugin name="turtlebot3_diff_drive" filename="libgazebo_ros_diff_drive.so">
+
+            <ros>
+            <!-- <namespace>/tb3</namespace> -->
+            <!--since gazebo_plugins publish tf topic in global namespace /tf only and it
+                cannot be remapped like (namespace/tf) through launch arguments -->
+            <remapping>/tf:=tf</remapping>
+            <remapping>/cmd_vel:=$(arg namespace)/cmd_vel</remapping>
+            <remapping>/odom:=$(arg namespace)/odom</remapping>
+
+            <namespace>$(arg namespace)</namespace>
+            </ros>
+
+            <update_rate>50</update_rate>
+
+            <!-- wheels -->
+            <left_joint>$(arg namespace)/wheel_left_joint</left_joint>
+            <right_joint>$(arg namespace)/wheel_right_joint</right_joint>
+
+            <!-- kinematics -->
+            <wheel_separation>0.287</wheel_separation>
+            <wheel_diameter>0.066</wheel_diameter>
+
+            <!-- limits -->
+            <max_wheel_torque>20</max_wheel_torque>
+            <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+            <command_topic>cmd_vel</command_topic>
+
+            <!-- output -->
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
+            <publish_wheel_tf>false</publish_wheel_tf>
+
+            <odometry_topic>odom</odometry_topic>
+            <odometry_frame>$(arg namespace)/odom</odometry_frame>
+            <robot_base_frame>$(arg namespace)/base_footprint</robot_base_frame>
+
+        </plugin>
+
+        <plugin name="turtlebot3_joint_state" filename="libgazebo_ros_joint_state_publisher.so">
+            <ros>
+            <!-- <namespace>/tb3</namespace> -->
+                <remapping>~/out:=$(arg namespace)/joint_states</remapping>
+            </ros>
+            <update_rate>50</update_rate>
+            <joint_name>$(arg namespace)/wheel_left_joint</joint_name>
+            <joint_name>$(arg namespace)/wheel_right_joint</joint_name>
+        </plugin>
+
+        
+
+    </gazebo>
+
+</robot>
