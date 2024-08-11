@@ -8,7 +8,7 @@
     <xacro:arg name="robot_material_color_rgb" default="0 1 0 1"/>
 
     <xacro:include filename="$(find turtle_bot_description)/description/xacro/inertial_macros.xacro" />
-    <!-- <xacro:include filename="$(find turtle_bot_description)/description/xacro/imu_sensor.xacro" /> -->
+    <xacro:include filename="$(find turtle_bot_description)/description/xacro/imu_sensor.xacro" />
     
     <!-- xacro:include filename="$(find turtle_bot_description)/description/xacro/depth_camera.xacro" / -->
     

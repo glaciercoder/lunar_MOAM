@@ -11,9 +11,6 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/crop_box.h>
 #include <chrono>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <message_filters/subscriber.h>
-#include <message_filters/time_synchronizer.h>
 
 using namespace std::chrono_literals;
 
@@ -99,10 +96,8 @@ class LidarOdometryNode : public rclcpp::Node
       rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr odometry_transform_publisher_;
       std::shared_ptr<realtime_tools::RealtimePublisher<tf2_msgs::msg::TFMessage>> realtime_odometry_transform_publisher_;
       rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_publisher;
-      message_filters::Subscriber<sensor_msgs::msg::PointCloud2> scan_sub1;
-      message_filters::Subscriber<sensor_msgs::msg::PointCloud2> scan_sub2;
-      std::shared_ptr<approximate_synchronizer> my_sync_;
-
+      rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr scan_sub1;
+      rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr scan_sub2;
       // Clouds
       pcl::PointCloud<pcl::PointXYZ>::Ptr points1;
       pcl::PointCloud<pcl::PointXYZ>::Ptr points2;

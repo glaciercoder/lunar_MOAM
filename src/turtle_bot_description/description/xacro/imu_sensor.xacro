@@ -5,13 +5,13 @@
 
   <visual>
     <geometry>
-      <box size="0.1 0.1 0.1"/>
+      <box size="0.01 0.01 0.01"/>
     </geometry>
   </visual>
 
   <collision>
     <geometry>
-      <box size="0.1 0.1 0.1"/>
+      <box size="0.01 0.01 0.01"/>
     </geometry>
   </collision>
 
@@ -35,7 +35,7 @@
           <remapping>~/out:=$(arg namespace)/imu</remapping>
         </ros>
         <initial_orientation_as_reference>false</initial_orientation_as_reference>
-        <frame_name>imu_link</frame_name>
+        <frame_name>$(arg namespace)/imu_link</frame_name>
       </plugin>
       <always_on>true</always_on>
       <update_rate>100</update_rate>
