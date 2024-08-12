@@ -24,35 +24,49 @@ def point_reg_node_gen(i, j):
             package='lidar_odom',
             namespace='',
             executable='lidar_odom',
-            name='_'.join(['pointreg', str(i), str(j)]),
-            arguments=['-scan_topic1', '/'.join([robot_i, scan]),
-                       '-scan_topic2', '/'.join([robot_j, scan]),
-                       '-odom_parent', '/'.join([robot_i, odom]),
-                       '-odom_child', '/'.joint([robot_j, odom])]
+            # name='_'.join(['pointreg', str(i), str(j)]),
+            name='lidar_odom'
+            # arguments=['-scan_topic1', '/'.join([robot_i, scan]),
+            #            '-scan_topic2', '/'.join([robot_j, scan]),
+            #            '-odom_parent', '/'.join([robot_i, odom]),
+            #            '-odom_child', '/'.join([robot_j, odom])]
         )
     return node
+
+
+def tf_glue(i):
+    robot_i = 'robot' + str(i)
+    base = 'base_footprint'
+    odom = 'odom'
+    node_tf = launch_ros.actions.Node( 
+    package='tf2_ros',
+    executable='static_transform_publisher',
+    arguments=['0.0', '0.0', '0.0', '0', '0', '0', 
+        '/'.join([robot_i, odom]), '/'.join([robot_i, base]) ],
+    output='screen')
+
+    return node_tf
     
 
 def generate_launch_description():
     node_list = []
-
-    robot_num = LaunchConfiguration('robot_rnum')
-    declare_robot_num_cmd = DeclareLaunchArgument(
-        'robot_num',
-        default_value='2',
-        description='Number of robots to be simulated')
-    node_list.append(declare_robot_num_cmd)
+    robot_num = 2
 
     for i in range(robot_num - 1):
         for j in range(i+1, robot_num):
             node_list.append(point_reg_node_gen(i, j))
 
-
+    # Temp attach the odom to base footprint
+    for i in range(robot_num):
+        node_list.append(tf_glue(i))
+   
 
     ld = LaunchDescription()
 
     for node in node_list:
         ld.add_action(node)
+
+    print(robot_num)
 
     return ld
 

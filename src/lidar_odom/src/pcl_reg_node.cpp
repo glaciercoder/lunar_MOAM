@@ -173,8 +173,8 @@ class LidarOdometryNode : public rclcpp::Node
         {
           auto & odometry_transform_message = realtime_odometry_transform_publisher_->msg_;
           odometry_transform_message.transforms.resize(1);
-          odometry_transform_message.transforms.front().header.frame_id = "robot1/odom";
-          odometry_transform_message.transforms.front().child_frame_id =  "robot2/odom";
+          odometry_transform_message.transforms.front().header.frame_id = odom_parent;
+          odometry_transform_message.transforms.front().child_frame_id =  odom_child;
           auto & transform = realtime_odometry_transform_publisher_->msg_.transforms.front();
           transform.header.stamp = this->get_clock()->now();
           transform.transform.translation.x = T.translation().x();
@@ -207,7 +207,7 @@ class LidarOdometryNode : public rclcpp::Node
       // ss << T.matrix();
       // RCLCPP_INFO(this->get_logger(), "Isometry matrix:\n%s", ss.str().c_str());
       publish_relative_odometry();
-      // publish_transformation();
+      publish_transformation();
       points_ready = false;
     }
     }
