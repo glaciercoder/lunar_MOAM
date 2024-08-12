@@ -21,14 +21,13 @@ from globals import *
 
 def generate_launch_description():
     robots = [
-        {'name': 'robot1', 'x_pos': 0.0, 'y_pos': 0.5, 'z_pos': 0.01,
+        {'name': 'robot0', 'x_pos': 0.0, 'y_pos': 0.5, 'z_pos': 0.01,
             "color_name" : 'Yellow', "color_rgb" : "1 1 0 1"},
-        {'name': 'robot2', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 0.01,
+        {'name': 'robot1', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 0.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"},
     ]
 
     arrNodes = []
-    print('step 1')
 
     # namespace = LaunchConfiguration('namespace')
     # use_namespace = LaunchConfiguration('use_namespace')
@@ -177,7 +176,7 @@ def generate_launch_description():
             
         params = {'robot_description': robot_description_config.toxml(), 'use_sim_time': use_sim_time}
 
-        print('step 3')
+    
         start_robot_state_publisher_cmd = Node(
             #condition=IfCondition(use_robot_state_pub),
             package='robot_state_publisher',
