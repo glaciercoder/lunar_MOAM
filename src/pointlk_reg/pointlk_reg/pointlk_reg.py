@@ -4,7 +4,7 @@ import sys, os
 from sensor_msgs.msg import PointCloud2
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 import ros2_numpy
-sys.path.insert(0, '/home/wbc/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
+sys.path.insert(0, '/home/dssl/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
 import ptlk
 import numpy as np
 import torch
@@ -58,12 +58,17 @@ class PointLK_reg(Node):
         self.get_logger().info('Registration finished')
 
     def data_dispose(self, p):
-        nd = ros2_numpy.numpify(p)
+        nd = ros2_numpy.numpify(p) # [n,3]
+        print(nd.shape)
         nd = nd.view((np.float32, len(nd.dtype.names)))
         nd = nd[~np.all(nd == 0, axis=1)]
+        print(nd.shape)
         norms = np.linalg.norm(nd, axis=1)
         indices = np.where(norms <= self.scan_range)[0]
         nd = nd[indices]
+        print(nd.shape)
+        nd = nd[nd[:, 2] > 0]
+        print(nd.shape)
         indices = np.random.choice(nd.shape[0], self.sample_num, replace=True)
         nd = nd[indices]
         nd = np.expand_dims(nd, axis=0)

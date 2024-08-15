@@ -14,6 +14,8 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
 
 using namespace std::chrono_literals;
 
@@ -116,6 +118,7 @@ class LidarOdometryNode : public rclcpp::Node
 
     RegistrationPCL<pcl::PointXYZ, pcl::PointXYZ> reg;
     bool points_ready;
+    pcl::PassThrough<pcl::PointXYZ> pass;
 
     void parameter_initilization() {
       this->declare_parameter<double>("CorrespondenceRandomness", 20);
@@ -129,11 +132,51 @@ class LidarOdometryNode : public rclcpp::Node
       this->declare_parameter<std::string>("odom_child", "robot1/odom");
     }
 
+    // Filters 
+    enum class Axis
+    {
+      X = 0,
+      Y = 1,
+      Z = 2
+    };
+
+    // Pass according to the range for a given axis
+    void pointcloud_range_filter(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, Axis axis, double min_range, double max_range, bool is_negative=false)
+    {
+      
+      pass.setInputCloud(cloud);
+      switch (axis)
+      {
+        case Axis::X:
+          pass.setFilterFieldName("x");
+          pass.setFilterLimits(min_range, max_range);
+          break;
+      
+        case Axis::Y:
+          pass.setFilterFieldName("y");
+          pass.setFilterLimits(min_range, max_range);
+          break;
+        
+        case Axis::Z:
+          pass.setFilterFieldName("z");
+          pass.setFilterLimits(min_range, max_range);
+          break;
+      }
+      pass.setNegative(is_negative);
+      pass.filter(*cloud);
+    }
+
 
 
     void scan_callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr scan_msg1, const sensor_msgs::msg::PointCloud2::ConstSharedPtr scan_msg2){
       pcl::fromROSMsg(*scan_msg1, *points1);
       pcl::fromROSMsg(*scan_msg2, *points2);
+      pointcloud_range_filter(points1, Axis::Z, 0.01, 10.0);
+      pointcloud_range_filter(points2, Axis::Z, 0.01, 10.0);
+      // if(! points_ready){
+      //   pcl::io::savePCDFileASCII ("test_pcd1.pcd", *points1);
+      //   pcl::io::savePCDFileASCII ("test_pcd2.pcd", *points2);
+      // }
       points_ready = true;
     }
 
