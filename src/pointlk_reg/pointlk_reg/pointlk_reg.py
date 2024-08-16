@@ -21,7 +21,7 @@ class PointLK_reg(Node):
         self.sample_num = 6000 # sample points from original
         self.scan_range = 11 # scan_range
         for i in range(2):
-            sub = Subscriber(self,  PointCloud2, "/robot"+str(i+1)+"/mid360_PointCloud2")
+            sub = Subscriber(self,  PointCloud2, "/robot"+str(i)+"/mid360_PointCloud2")
             self.subs.append(sub)
         self.ts = ApproximateTimeSynchronizer(self.subs, queue_size=5, slop=0.1)
         self.ts.registerCallback(self.ts_callback)
@@ -40,7 +40,7 @@ class PointLK_reg(Node):
         self.action = Action()
         self.model = self.action.create_model()
         # Load Pretrained model
-        pretrained_path = '/home/wbc/results/ex1_pointlk_0915_model_best.pth'
+        pretrained_path = '/home/dssl/results/ex1_pointlk_0915_model_best.pth'
         assert os.path.isfile(pretrained_path)
         self.model.load_state_dict(torch.load(pretrained_path, map_location='cpu'))
         self.model.to(self.device)
