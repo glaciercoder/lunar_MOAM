@@ -49,7 +49,7 @@ global def_urdf
 def_urdf = os.path.join(def_bringup_dir,'description','robot.urdf.xacro')
 
 global def_world_path
-def_world_path = os.path.join(def_bringup_dir, 'worlds', 'shapes.sdf')
+def_world_path = os.path.join(def_bringup_dir, 'worlds', 'small_shapes.sdf')
 
 # ---
 
