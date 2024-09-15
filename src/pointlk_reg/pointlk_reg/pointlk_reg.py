@@ -4,7 +4,7 @@ import sys, os
 from sensor_msgs.msg import PointCloud2
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 import ros2_numpy
-sys.path.insert(0, '/home/dssl/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
+sys.path.insert(0, '/home/glacier-dssl/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
 import ptlk
 import numpy as np
 import torch
@@ -20,14 +20,26 @@ class PointLK_reg(Node):
 
         self.sample_num = 6000 # sample points from original
         self.scan_range = 11 # scan_range
-        for i in range(2):
-            sub = Subscriber(self,  PointCloud2, "/robot"+str(i)+"/mid360_PointCloud2")
-            self.subs.append(sub)
+
+        self.declare_parameter('robot1', '0') # The first robot
+        self.declare_parameter('robot2', '1') # The second robot
+        self.declare_parameter('pretrained_path', '/home//glacier-dssl/results/ex1_pointlk_0915_model_best.pth') # odom topic
+
+        robot1 = 'robot' + self.get_parameter('robot1').get_parameter_value()._string_value
+        robot2 = 'robot' + self.get_parameter('robot2').get_parameter_value()._string_value
+        odom_topic = '_'.join(['pointlk_reg', str(robot1), str(robot2)]),
+        odom_parent = '/'.join([robot1, 'odom'])
+        odom_chile = '/'.join([robot2, 'odom'])
+        pretrained_path = self.get_parameter('pretrained_path').get_parameter_value()._string_value
+
+        self.subs.append(Subscriber(self,  PointCloud2, "/robot"+str(robot1)+"/mid360_PointCloud2"))
+        self.subs.append(Subscriber(self,  PointCloud2, "/robot"+str(robot2)+"/mid360_PointCloud2"))
+
         self.ts = ApproximateTimeSynchronizer(self.subs, queue_size=5, slop=0.1)
         self.ts.registerCallback(self.ts_callback)
         self.g = None
 
-        self.publisher_ = self.create_publisher(Odometry, 'pointlk_odom', 10)
+        self.publisher_ = self.create_publisher(Odometry, odom_topic, 10)
         self.timer = self.create_timer(1.0, self.publish_odometry)
 
         # Registration
@@ -40,7 +52,6 @@ class PointLK_reg(Node):
         self.action = Action()
         self.model = self.action.create_model()
         # Load Pretrained model
-        pretrained_path = '/home/dssl/results/ex1_pointlk_0915_model_best.pth'
         assert os.path.isfile(pretrained_path)
         self.model.load_state_dict(torch.load(pretrained_path, map_location='cpu'))
         self.model.to(self.device)
@@ -83,8 +94,8 @@ class PointLK_reg(Node):
         
         # Populate with example data
         odometry.header.stamp = self.get_clock().now().to_msg()
-        odometry.header.frame_id = "robot1/base_link"
-        odometry.child_frame_id = "pointlk_frame"
+        odometry.header.frame_id = self.odom_parent
+        odometry.child_frame_id = self.odom_child
 
         translation = self.g[0, :3, 3]
         rotation_matrix = self.g[0, :3, :3]
