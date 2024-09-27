@@ -15,15 +15,16 @@ import xacro
 from ament_index_python.packages import get_package_share_directory
 
 
-def pointlk_reg_node_gen(i, j):
+def wheel_rel_node_gen(i, j):
+    print(f"i = {i}, j= {j}")
     node =  Node(
-            package='pointlk_reg',
+            package='mutual_localization',
             namespace='',
-            executable='pointlk_reg',
-            name='_'.join(['pointlk_reg', str(i), str(j)]),
+            executable='wheel_rel',
+            name='_'.join(['wheel_rel', str(i), str(j)]),
             parameters=[{'robot1': str(i),
-                         'robot2': str(j),
-                         'pretrained_path': '/home/dssl/results/ex1_pointlk_0915_model_best.pth'}]
+                         'robot2': str(j)}],
+            output='screen'
         )
     return node
 
@@ -47,7 +48,7 @@ def generate_launch_description():
     robot_num = 3
     for i in range(robot_num - 1):
         for j in range(i+1, robot_num):
-            node =  pointlk_reg_node_gen(i, j)
+            node =  wheel_rel_node_gen(i, j)
             node_list.append(node)
 
     
@@ -60,8 +61,6 @@ def generate_launch_description():
 
     for node in node_list:
         ld.add_action(node)
-
-    print(robot_num)
 
     return ld
 

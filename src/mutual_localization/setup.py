@@ -10,7 +10,9 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name, ['launch/point_reg.launch.py'])
+        ('share/' + package_name, ['launch/point_reg.launch.py']),
+        ('share/' + package_name, ['launch/pointlk_reg.launch.py']),
+        ('share/' + package_name, ['launch/wheel_rel.launch.py'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -21,7 +23,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'mutual_localization = mutual_localization.mutual_localization:main'
+            'mutual_localization = mutual_localization.mutual_localization:main',
+            'wheel_rel = mutual_localization.wheel_rel:main'
         ],
     },
 )

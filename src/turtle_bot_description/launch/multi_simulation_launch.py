@@ -25,6 +25,8 @@ def generate_launch_description():
             "color_name" : 'Yellow', "color_rgb" : "1 1 0 1"},
         {'name': 'robot1', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 0.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"},
+            {'name': 'robot2', 'x_pos': 0.5, 'y_pos': -0.5, 'z_pos': 0.01,
+            "color_name" : 'Blue', "color_rgb" : "0 0 1 1"}
     ]
 
     arrNodes = []
@@ -159,7 +161,6 @@ def generate_launch_description():
         'libgazebo_ros_factory.so'], output='screen')    
     arrNodes.append(gazebo_node)
 
-    print('step 2')
 
     for robot in robots:
         namespace = "/" + robot['name'] if robot['name'] != "" else ""
@@ -245,14 +246,14 @@ def generate_launch_description():
         arrNodes.append(joint_state_publisher_node)
 
         # Lidar odom node
-        lidar_odom_node = Node(
-            package='lidar_odom',
-            executable='lidar_odom',
-            name='lidar_odom',
-            output='screen',
-            parameters=[params],
-        )
-        arrNodes.append(lidar_odom_node)
+        # lidar_odom_node = Node(
+        #     package='lidar_odom',
+        #     executable='lidar_odom',
+        #     name='lidar_odom',
+        #     output='screen',
+        #     parameters=[params],
+        # )
+        # arrNodes.append(lidar_odom_node)
 
         # Publish world to odom, used when no relative localization is given
         node_tf = launch_ros.actions.Node( 

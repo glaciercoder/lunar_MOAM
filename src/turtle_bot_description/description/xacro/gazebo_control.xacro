@@ -29,12 +29,12 @@
             <max_wheel_torque>20</max_wheel_torque>
             <max_wheel_acceleration>1.0</max_wheel_acceleration>
 
-            <command_topic>cmd_vel</command_topic>
+            <command_topic>$(arg namespace)/cmd_vel</command_topic>
 
             <!-- output -->
             <publish_odom>true</publish_odom>
-            <publish_odom_tf>true</publish_odom_tf>
-            <publish_wheel_tf>false</publish_wheel_tf>
+            <publish_odom_tf>false</publish_odom_tf>
+            <publish_wheel_tf>true</publish_wheel_tf>
 
             <odometry_topic>odom</odometry_topic>
             <odometry_frame>$(arg namespace)/odom</odometry_frame>
