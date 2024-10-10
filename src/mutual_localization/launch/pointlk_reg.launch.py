@@ -23,23 +23,24 @@ def pointlk_reg_node_gen(i, j):
             name='_'.join(['pointlk_reg', str(i), str(j)]),
             parameters=[{'robot1': str(i),
                          'robot2': str(j),
-                         'pretrained_path': '/home/dssl/results/ex1_pointlk_0915_model_best.pth'}]
+                         'pretrained_path': '/home/dssl/results/ex1_pointlk_0915_model_best.pth',
+                         'use_sim_time': True}]
         )
     return node
 
 
-def tf_glue(i):
-    robot_i = 'robot' + str(i)
-    base = 'base_footprint'
-    odom = 'odom'
-    node_tf = launch_ros.actions.Node( 
-    package='tf2_ros',
-    executable='static_transform_publisher',
-    arguments=['0.0', '0.0', '0.0', '0', '0', '0', 
-        '/'.join([robot_i, odom]), '/'.join([robot_i, base]) ],
-    output='screen')
+# def tf_glue(i):
+#     robot_i = 'robot' + str(i)
+#     base = 'base_footprint'
+#     odom = 'odom'
+#     node_tf = launch_ros.actions.Node( 
+#     package='tf2_ros',
+#     executable='static_transform_publisher',
+#     arguments=['0.0', '0.0', '0.0', '0', '0', '0', 
+#         '/'.join([robot_i, odom]), '/'.join([robot_i, base]) ],
+#     output='screen')
 
-    return node_tf
+#     return node_tf
     
 
 def generate_launch_description():
@@ -52,8 +53,8 @@ def generate_launch_description():
 
     
     # Temp attach the odom to base footprint
-    for i in range(robot_num):
-        node_list.append(tf_glue(i))
+    # for i in range(robot_num):
+    #     node_list.append(tf_glue(i))
    
 
     ld = LaunchDescription()

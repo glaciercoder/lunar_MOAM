@@ -18,7 +18,7 @@ class PointLK_reg(Node):
         super().__init__('pointlk_reg')
         self.subs = []
 
-        self.sample_num = 6000 # sample points from original
+        self.sample_num = 1000 # sample points from original
         self.scan_range = 11 # scan_range
 
         self.declare_parameter('robot1', '0') # The first robot
@@ -32,15 +32,15 @@ class PointLK_reg(Node):
         self.odom_child = '/'.join([robot2, 'odom'])
         pretrained_path = self.get_parameter('pretrained_path').get_parameter_value()._string_value
 
-        self.subs.append(Subscriber(self,  PointCloud2, "/robot"+str(robot1)+"/mid360_PointCloud2"))
-        self.subs.append(Subscriber(self,  PointCloud2, "/robot"+str(robot2)+"/mid360_PointCloud2"))
+        self.subs.append(Subscriber(self,  PointCloud2, "/"+str(robot1)+"/mid360_PointCloud2"))
+        self.subs.append(Subscriber(self,  PointCloud2, "/"+str(robot2)+"/mid360_PointCloud2"))
 
         self.ts = ApproximateTimeSynchronizer(self.subs, queue_size=5, slop=0.1)
         self.ts.registerCallback(self.ts_callback)
         self.g = None
 
         self.publisher_ = self.create_publisher(Odometry, odom_topic, 10)
-        self.timer = self.create_timer(1.0, self.publish_odometry)
+        self.timer = self.create_timer(0.5, self.publish_odometry)
 
         # Registration
         if not torch.cuda.is_available():

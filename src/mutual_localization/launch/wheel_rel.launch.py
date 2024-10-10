@@ -23,7 +23,8 @@ def wheel_rel_node_gen(i, j):
             executable='wheel_rel',
             name='_'.join(['wheel_rel', str(i), str(j)]),
             parameters=[{'robot1': str(i),
-                         'robot2': str(j)}],
+                         'robot2': str(j),
+                         'use_sim_time': True}],
             output='screen'
         )
     return node

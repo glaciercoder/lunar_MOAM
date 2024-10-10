@@ -25,7 +25,7 @@ def generate_launch_description():
             "color_name" : 'Yellow', "color_rgb" : "1 1 0 1"},
         {'name': 'robot1', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 0.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"},
-            {'name': 'robot2', 'x_pos': 0.5, 'y_pos': -0.5, 'z_pos': 0.01,
+        {'name': 'robot2', 'x_pos': 0.5, 'y_pos': -0.5, 'z_pos': 0.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"}
     ]
 
@@ -36,7 +36,7 @@ def generate_launch_description():
 
     world = LaunchConfiguration('world')
     # simulator = LaunchConfiguration('simulator')
-    ##use_simulator = LaunchConfiguration('use_simulator')
+    use_simulator = LaunchConfiguration('use_simulator')
     ##headless = LaunchConfiguration('headless')
 
     #use_rviz = LaunchConfiguration('use_rviz')
@@ -44,7 +44,7 @@ def generate_launch_description():
     # use_robot_state_pub = LaunchConfiguration('use_robot_state_pub')
     
     use_sim_time = LaunchConfiguration('use_sim_time')
-
+    headless = LaunchConfiguration('headless')
     # Create the launch configuration variables
     
     # simple, slam, map
@@ -62,6 +62,11 @@ def generate_launch_description():
         default_value='True',
         description='Whether run a SLAM')
     arrNodes.append(declare_slam_cmd)
+
+    declare_simulator_cmd = DeclareLaunchArgument(
+        'headless',
+        default_value='True',
+        description='Whether to execute gzclient')
 
     map_yaml_file = LaunchConfiguration('map')
     keepout_mask = LaunchConfiguration('keepout_mask')
@@ -127,11 +132,11 @@ def generate_launch_description():
         description='Full path to the RVIZ config file to use')
     arrNodes.append(declare_rviz_config_file_cmd)
 
-    # declare_use_simulator_cmd = DeclareLaunchArgument(
-    #     'use_simulator',
-    #     default_value='True',
-    #     description='Whether to start the simulator')
-    # arrNodes.append(declare_use_simulator_cmd)
+    declare_use_simulator_cmd = DeclareLaunchArgument(
+        'use_simulator',
+        default_value='True',
+        description='Whether to start the simulator')
+    arrNodes.append(declare_use_simulator_cmd)
 
     # declare_use_robot_state_pub_cmd = DeclareLaunchArgument(
     #     'use_robot_state_pub',
@@ -157,11 +162,25 @@ def generate_launch_description():
     #     description='The simulator to use (gazebo or gzserver)')
     # arrNodes.append(declare_simulator_cmd)
    
-    gazebo_node = ExecuteProcess(cmd=['gazebo', '--verbose', world,'-s', 
-        'libgazebo_ros_factory.so'], output='screen')    
-    arrNodes.append(gazebo_node)
+    # gazebo_node = ExecuteProcess(cmd=['gazebo', '--verbose', world,'-s', 
+    #     'libgazebo_ros_factory.so'], output='screen')    
+    # arrNodes.append(gazebo_node)
 
+    start_gazebo_server_cmd = ExecuteProcess(
+        condition=IfCondition(use_simulator),
+        cmd=['gzserver', '-s', 'libgazebo_ros_init.so',
+             '-s', 'libgazebo_ros_factory.so', world],
+         output='screen')
 
+    start_gazebo_client_cmd = ExecuteProcess(
+        condition=IfCondition(PythonExpression(
+            [use_simulator, ' and not ', headless])),
+        cmd=['gzclient'],
+        output='screen')
+    
+    arrNodes.append(start_gazebo_server_cmd)
+    arrNodes.append(start_gazebo_client_cmd)
+    
     for robot in robots:
         namespace = "/" + robot['name'] if robot['name'] != "" else ""
 
@@ -267,6 +286,17 @@ def generate_launch_description():
 
     # ---
 
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',  # Works fine
+        ],
+        output='screen'
+    )
+
+    arrNodes.append(bridge)
+
     rviz_node = Node(package    ='rviz2',
                      executable ='rviz2',
                      name       ='rviz2',
@@ -276,7 +306,7 @@ def generate_launch_description():
 
     gazebo_exit_event_handler = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=gazebo_node,
+            target_action=start_gazebo_client_cmd,
             on_exit=EmitEvent(event=Shutdown(reason='gazebo exited'))))
     arrNodes.append(gazebo_exit_event_handler)
 
