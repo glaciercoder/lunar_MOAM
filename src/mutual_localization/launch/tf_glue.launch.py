@@ -16,31 +16,18 @@ import xacro
 from ament_index_python.packages import get_package_share_directory
 
 
-def wheel_rel_node_gen(i, j):
-    print(f"i = {i}, j= {j}")
-    node =  Node(
-            package='mutual_localization',
-            namespace='',
-            executable='wheel_rel',
-            name='_'.join(['wheel_rel', str(i), str(j)]),
-            parameters=[{'robot1': str(i),
-                         'robot2': str(j),
-                         'use_sim_time': True}],
-            output='screen'
-        )
-    return node
-
-def wheel_rel_gen_func(context: LaunchContext, robot_num_arg: LaunchConfiguration):
+def tf_glue_gen_func(context: LaunchContext, robot_num_arg: LaunchConfiguration):
     node_list = []
     robot_num = context.perform_substitution(robot_num_arg)
     robot_num = int(robot_num)
-    for i in range(robot_num - 1):
-        for j in range(i+1, robot_num):
-            node =  wheel_rel_node_gen(i, j)
-            node_list.append(node)
+    for i in range(robot_num):
+        node =  tf_glue_node_gen(i)
+        node_list.append(node)
     return node_list
 
-def tf_glue(i):
+
+
+def tf_glue_node_gen(i):
     robot_i = 'robot' + str(i)
     base = 'base_footprint'
     odom = 'odom'
@@ -55,7 +42,6 @@ def tf_glue(i):
     
 
 def generate_launch_description():
-   
     robot_num = LaunchConfiguration('robot_num')
     declare_robot_num_cmd = DeclareLaunchArgument(
         'robot_num',
@@ -65,9 +51,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(declare_robot_num_cmd)
-    wheel_rel_nodes = OpaqueFunction(function=wheel_rel_gen_func, args=[robot_num])
-    ld.add_action(wheel_rel_nodes)
-    
+    tf_glue_node_nodes = OpaqueFunction(function=tf_glue_gen_func, args=[robot_num])
+    ld.add_action(tf_glue_node_nodes)
 
     return ld
 

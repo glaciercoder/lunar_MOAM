@@ -13,7 +13,9 @@ setup(
         ('share/' + package_name, ['launch/point_reg.launch.py']),
         ('share/' + package_name, ['launch/pointlk_reg.launch.py']),
         ('share/' + package_name, ['launch/wheel_rel.launch.py']),
-        ('share/' + package_name, ['launch/robot_localization.launch.py'])
+        ('share/' + package_name, ['launch/robot_localization.launch.py']),
+        ('share/' + package_name, ['launch/tf_glue.launch.py']),
+        ('share/' + package_name, ['launch/wheel_point_localization.launch.py'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,

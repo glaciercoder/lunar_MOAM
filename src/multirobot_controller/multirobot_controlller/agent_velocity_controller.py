@@ -31,7 +31,6 @@ class VelocityController(Node):
 def main(args=None):
     rclpy.init(args=args)
     controller = VelocityController()
-
     executor = SingleThreadedExecutor()
     executor.add_node(controller)
     try:
