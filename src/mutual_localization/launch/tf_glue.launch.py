@@ -28,6 +28,7 @@ def tf_glue_gen_func(context: LaunchContext, robot_num_arg: LaunchConfiguration)
 
 
 def tf_glue_node_gen(i):
+    print(f'tf_glue:{i}')
     robot_i = 'robot' + str(i)
     base = 'base_footprint'
     odom = 'odom'

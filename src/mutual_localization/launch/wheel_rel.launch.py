@@ -17,7 +17,7 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def wheel_rel_node_gen(i, j):
-    print(f"i = {i}, j= {j}")
+    print(f"wheel_rel: i = {i}, j= {j}")
     node =  Node(
             package='mutual_localization',
             namespace='',

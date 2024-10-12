@@ -41,19 +41,6 @@ def pointlk_reg_gen_func(context: LaunchContext, robot_num_arg: LaunchConfigurat
     return node_list
 
 
-
-# def tf_glue(i):
-#     robot_i = 'robot' + str(i)
-#     base = 'base_footprint'
-#     odom = 'odom'
-#     node_tf = launch_ros.actions.Node( 
-#     package='tf2_ros',
-#     executable='static_transform_publisher',
-#     arguments=['0.0', '0.0', '0.0', '0', '0', '0', 
-#         '/'.join([robot_i, odom]), '/'.join([robot_i, base]) ],
-#     output='screen')
-
-#     return node_tf
     
 
 def generate_launch_description():
@@ -68,11 +55,6 @@ def generate_launch_description():
     ld.add_action(declare_robot_num_cmd)
     pointlk_reg_nodes = OpaqueFunction(function=pointlk_reg_gen_func, args=[robot_num])
     ld.add_action(pointlk_reg_nodes)
-
-    
-    # Temp attach the odom to base footprint
-    # for i in range(robot_num):
-    #     node_list.append(tf_glue(i))
 
     return ld
 
