@@ -67,7 +67,7 @@ def generate_launch_description():
         'headless',
         default_value='True',
         description='Whether to execute gzclient')
-
+    arrNodes.append(declare_simulator_cmd)
     map_yaml_file = LaunchConfiguration('map')
     keepout_mask = LaunchConfiguration('keepout_mask')
 

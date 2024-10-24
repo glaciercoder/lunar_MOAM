@@ -4,7 +4,7 @@ import sys, os
 from sensor_msgs.msg import PointCloud2
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 import ros2_numpy
-sys.path.insert(0, '/home/glacier-dssl/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
+sys.path.insert(0, '/home/wbc/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
 import ptlk
 import numpy as np
 import torch
@@ -23,7 +23,7 @@ class PointLK_reg(Node):
 
         self.declare_parameter('robot1', '0') # The first robot
         self.declare_parameter('robot2', '1') # The second robot
-        self.declare_parameter('pretrained_path', '/home//glacier-dssl/results/ex1_pointlk_0915_model_best.pth') # odom topic
+        self.declare_parameter('pretrained_path', '/home/wbc/results/ex1_pointlk_0915_model_best.pth') 
 
         robot1 = 'robot' + self.get_parameter('robot1').get_parameter_value()._string_value
         robot2 = 'robot' + self.get_parameter('robot2').get_parameter_value()._string_value
@@ -31,6 +31,7 @@ class PointLK_reg(Node):
         self.odom_parent = '/'.join([robot1, 'odom'])
         self.odom_child = '/'.join([robot2, 'odom'])
         pretrained_path = self.get_parameter('pretrained_path').get_parameter_value()._string_value
+        print(pretrained_path)
 
         self.subs.append(Subscriber(self,  PointCloud2, "/"+str(robot1)+"/mid360_PointCloud2"))
         self.subs.append(Subscriber(self,  PointCloud2, "/"+str(robot2)+"/mid360_PointCloud2"))

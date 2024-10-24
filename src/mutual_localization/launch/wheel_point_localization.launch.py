@@ -17,7 +17,6 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory('mutual_localization')
-    launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Create the launch configuration variables
     robot_num = LaunchConfiguration('robot_num')
@@ -45,9 +44,9 @@ def generate_launch_description():
             os.path.join(bringup_dir, 'pointlk_reg.launch.py')),
         launch_arguments={'robot_num': robot_num}.items())
 
-    pointlk_reg_cmd = IncludeLaunchDescription(
+    robot_localization_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(bringup_dir, 'pointlk_reg.launch.py')),
+            os.path.join(bringup_dir, 'robot_localization.launch.py')),
         launch_arguments={'robot_num': robot_num}.items()) 
 
     # Create the launch description and populate
@@ -59,5 +58,6 @@ def generate_launch_description():
     ld.add_action(tf_glue_cmd)
     ld.add_action(wheel_rel_cmd)
     ld.add_action(pointlk_reg_cmd)
+    ld.add_action(robot_localization_cmd)
 
     return ld
