@@ -205,6 +205,7 @@ def generate_launch_description():
             namespace=namespace,
             output='screen',
             #remappings=def_remappings,
+
             parameters=[params]
         )    
         arrNodes.append(start_robot_state_publisher_cmd)
