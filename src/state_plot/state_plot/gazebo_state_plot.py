@@ -24,12 +24,12 @@ class ModelStatePlot(Node):
         # Robot information
         self.robot_name = [('robot'+ str(i)) for i in range(self.robot_num)]
         self.model_states = None # k * robot_num * 3 (x, y, yaw)
-        self.new_state = np.zeros((self.robot_num, 3)) # robot_num * 3 (x, y, yaw)
+        self.new_states = None # robot_num * 3 (x, y, yaw)
         self.t = [] # Message Time
         self.model_state_futures = [None for i in range(self.robot_num)]
         self.model_state_clients = [self.create_client(GetEntityState, '/gazebo/get_entity_state')  for i in range(self.robot_num)]
+
         # Wait for client
-        
         for i in range(self.robot_num):
             while not self.model_state_clients[i].wait_for_service(timeout_sec=1.0):
                 self.get_logger().info('service not available, waiting again...')
@@ -38,8 +38,13 @@ class ModelStatePlot(Node):
         # Timer
         timer_period = 0.5
         self.timer = self.create_timer(timer_period, self.timer_callback, callback_group=self.cbg)
+
         # Plot 
         self.fig, self.ax = plt.subplots()
+        self.lines = []
+        for i in range(self.robot_num):
+            line, = self.ax.plot([], [], label=f'Robot {i}')
+            self.lines.append(line)
 
     def send_request(self):
         self.req.reference_frame = 'world'
@@ -51,14 +56,17 @@ class ModelStatePlot(Node):
     def timer_callback(self):  
         with self._lock:
             for i in range(self.robot_num):
-                if self.model_state_futures[i].done():
-                    model_state = self.model_state_futures[i].result()
-                    self._decode(model_state, self.new_state[i])
-                    self.t.append(model_state.header.stamp.sec + model_state.header.stamp.nanosec * 1e-9)
+                while not self.model_state_futures[i].done():
+                    pass
+                model_state = self.model_state_futures[i].result()
+                if self.new_states is None:
+                    self.new_states = np.zeros((self.robot_num, 3)) 
+                self._decode(model_state, self.new_states[i])
+                self.t.append(model_state.header.stamp.sec + model_state.header.stamp.nanosec * 1e-9)
             if self.model_states is not None:
-                self.model_states = np.concatenate((self.model_states, np.expand_dims(self.new_state, axis=0)), axis=0)
+                self.model_states = np.concatenate((self.model_states, np.expand_dims(self.new_states, axis=0)), axis=0)
             else:
-                self.model_states = np.expand_dims(self.new_state, axis=0)
+                self.model_states = np.expand_dims(self.new_states, axis=0)
             self.send_request()
 
     # Extract information from msg
@@ -80,10 +88,18 @@ class ModelStatePlot(Node):
         # lock thread
         with self._lock:
             if self.model_states is not None:
-                x = self.model_states[:, 0, 0]
-                y = self.model_states[:, 0, 1]
-                self.ax.plot(x, y)
-
+                for i, line in enumerate(self.lines):
+                    x = self.model_states[:, i, 0]
+                    y = self.model_states[:, i, 1]
+                    line.set_data(x, y)
+                all_x = self.model_states[:, :, 0]
+                all_y = self.model_states[:, :, 1]
+                self.ax.set_xlim(np.min(all_x), np.max(all_x))
+                self.ax.set_ylim(np.min(all_y), np.max(all_y))
+                if not hasattr(self, "_legend_added"):
+                    self.ax.legend()
+                    self._legend_added = True
+                
             return self.ax
         
     def _plt(self):
