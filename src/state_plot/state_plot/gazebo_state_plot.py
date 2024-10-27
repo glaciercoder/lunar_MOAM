@@ -45,18 +45,17 @@ class ModelStatePlot(Node):
         self.req.reference_frame = 'world'
         for i in range(self.robot_num):
             self.req.name = self.robot_name[i]
-            self.model_state_futures = self.model_state_clients[i].call_async(self.req)
+            self.model_state_futures[i] = self.model_state_clients[i].call_async(self.req)
         return
     
     def timer_callback(self):  
         with self._lock:
             for i in range(self.robot_num):
                 if self.model_state_futures[i].done():
-                    print("Position get")
-                    model_state = self.model_state_future.result()
+                    model_state = self.model_state_futures[i].result()
                     self._decode(model_state, self.new_state[i])
-                    self.t.append(self.model_state.header.stamp.sec + self.model_state.header.stamp.nanosec * 1e-9)
-            if self.model_states:
+                    self.t.append(model_state.header.stamp.sec + model_state.header.stamp.nanosec * 1e-9)
+            if self.model_states is not None:
                 self.model_states = np.concatenate((self.model_states, np.expand_dims(self.new_state, axis=0)), axis=0)
             else:
                 self.model_states = np.expand_dims(self.new_state, axis=0)
@@ -80,7 +79,7 @@ class ModelStatePlot(Node):
         """
         # lock thread
         with self._lock:
-            if self.model_states:
+            if self.model_states is not None:
                 x = self.model_states[:, 0, 0]
                 y = self.model_states[:, 0, 1]
                 self.ax.plot(x, y)
@@ -97,8 +96,7 @@ def main():
     rclpy.init()
     print("Init")
     model_plot_node = ModelStatePlot()
-    print("2")
-    # model_plot_node.send_request()
+    model_plot_node.send_request()
     executor = rclpy.executors.MultiThreadedExecutor()
     executor.add_node(model_plot_node)
     thread = threading.Thread(target=executor.spin, daemon=True)
