@@ -4,7 +4,7 @@ import sys, os
 from sensor_msgs.msg import PointCloud2
 from message_filters import Subscriber, ApproximateTimeSynchronizer
 import ros2_numpy
-sys.path.insert(0, '/home/wbc/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
+sys.path.insert(0, '/home/glacier-dssl/Projects/lunar_MOAM/src/pointlk_reg/pointlk_reg/PointNetLK')
 import ptlk
 import numpy as np
 import torch
