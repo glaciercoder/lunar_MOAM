@@ -7,6 +7,7 @@ from rclpy.node import Node
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
+from nav_msgs.msg import Odometry
 
 class ModelStatePlot(Node):
 
@@ -15,6 +16,9 @@ class ModelStatePlot(Node):
         # Multi threads
         self._lock = threading.Lock()
         self.cbg = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
+        self.serv_cbg = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
+        self.sub_cbg= rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
+
         # Requests
         self.req = GetEntityState.Request()
         # Parameters
@@ -23,11 +27,13 @@ class ModelStatePlot(Node):
         self.robot_num = int(self.robot_num)
         # Robot information
         self.robot_name = [('robot'+ str(i)) for i in range(self.robot_num)]
+
+        # States from gazebo
         self.model_states = None # k * robot_num * 3 (x, y, yaw)
         self.new_states = None # robot_num * 3 (x, y, yaw)
         self.t = [] # Message Time
         self.model_state_futures = [None for i in range(self.robot_num)]
-        self.model_state_clients = [self.create_client(GetEntityState, '/gazebo/get_entity_state')  for i in range(self.robot_num)]
+        self.model_state_clients = [self.create_client(GetEntityState, '/gazebo/get_entity_state', callback_group=self.serv_cbg)  for i in range(self.robot_num)]
 
         # Wait for client
         for i in range(self.robot_num):
@@ -68,6 +74,7 @@ class ModelStatePlot(Node):
             else:
                 self.model_states = np.expand_dims(self.new_states, axis=0)
             self.send_request()
+
 
     # Extract information from msg
     def _decode(self, model_state, target_state):

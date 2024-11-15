@@ -54,7 +54,7 @@ class PointLK_reg(Node):
         self.model = self.action.create_model()
         # Load Pretrained model
         assert os.path.isfile(pretrained_path)
-        self.model.load_state_dict(torch.load(pretrained_path, map_location='cpu'))
+        self.model.load_state_dict(torch.load(pretrained_path, map_location='cpu', weights_only=True))
         self.model.to(self.device)
 
 

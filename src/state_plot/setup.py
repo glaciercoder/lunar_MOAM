@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'gazebo_state_plot = state_plot.gazebo_state_plot:main'
+            'gazebo_state_plot = state_plot.gazebo_state_plot:main',
+            'rel_state_plot  = state_plot.rel_state_plot:main'
         ],
     },
 )
