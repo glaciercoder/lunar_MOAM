@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
 from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Point
 
 class ModelStatePlot(Node):
 
@@ -32,8 +33,17 @@ class ModelStatePlot(Node):
         self.model_states = None # k * robot_num * 3 (x, y, yaw)
         self.new_states = None # robot_num * 3 (x, y, yaw)
         self.t = [] # Message Time
+        self.relative_odom = None # Relative odom
         self.model_state_futures = [None for i in range(self.robot_num)]
         self.model_state_clients = [self.create_client(GetEntityState, '/gazebo/get_entity_state', callback_group=self.serv_cbg)  for i in range(self.robot_num)]
+
+        # Publish relative odom
+        self.rel_pubs = []
+        for i in range(self.robot_num - 1):
+            for j in range(i + 1, self.robot_num):
+                topic_name = f'/true_odom_{self.robot_name[i]}_{self.robot_name[j]}'
+                pub = self.create_publisher(Point, topic_name, 10)
+                self.rel_pubs.append(pub)
 
         # Wait for client
         for i in range(self.robot_num):
@@ -59,6 +69,18 @@ class ModelStatePlot(Node):
             self.model_state_futures[i] = self.model_state_clients[i].call_async(self.req)
         return
     
+    def publish_points(self):
+        # Publish each point from the numpy array
+        for i in range(self.relative_odom.shape[0]):
+            point = Point()
+            point.x = float(self.relative_odom[i, 0])
+            point.y = float(self.relative_odom[i, 1])
+            point.z = float(self.relative_odom[i, 2])
+            
+            # Publish to the corresponding topic
+            self.rel_pubs[i].publish(point)
+            # self.get_logger().info(f'Publishing {point} to point_topic_{i}')
+    
     def timer_callback(self):  
         with self._lock:
             for i in range(self.robot_num):
@@ -73,6 +95,8 @@ class ModelStatePlot(Node):
                 self.model_states = np.concatenate((self.model_states, np.expand_dims(self.new_states, axis=0)), axis=0)
             else:
                 self.model_states = np.expand_dims(self.new_states, axis=0)
+            self._compute_relative_odom()
+            self.publish_points()
             self.send_request()
 
 
@@ -81,6 +105,24 @@ class ModelStatePlot(Node):
         target_state[0] = model_state.state.pose.position.x
         target_state[1] = model_state.state.pose.position.y
         target_state[2] = model_state.state.pose.position.z # Need to change
+
+    def _compute_relative_odom(self):
+        """
+        Compute the relative odometry between all robot pairs.
+        
+        Updates:
+            self.relative_odom: [n * (n - 1) / 2, 3] relative odometry
+        """
+        pair_count = self.robot_num * (self.robot_num - 1) // 2
+        self.relative_odom = np.zeros((pair_count, 3))
+        
+        pair_idx = 0
+        print("Compute callback")
+        for i in range(self.robot_num - 1):
+            for j in range(i + 1, self.robot_num):
+                self.relative_odom[pair_idx] = self.new_states[j] - self.new_states[i]
+                pair_idx += 1
+
 
 
     def plt_func(self, _):  
