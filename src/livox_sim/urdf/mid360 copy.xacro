@@ -4,8 +4,8 @@
   <xacro:property name="M_PI" value="3.1415926"/> 
   <xacro:property name="laser_min_range" value="0.1"/>
   <xacro:property name="laser_max_range" value="5.0"/>
-  <xacro:property name="samples" value="20000"/>
-  <xacro:property name="resolution" value="0.02"/>
+  <xacro:property name="samples" value="40000"/>
+  <xacro:property name="resolution" value="0.002"/>
   <xacro:property name="noise_mean" value="0.0"/>
   <xacro:property name="noise_stddev" value="0.0"/>
 
@@ -45,7 +45,7 @@
       <sensor type="ray" name="${name}">
         <pose>0 0 0 0 0 0</pose>
         <visualize>true</visualize>
-        <update_rate>50</update_rate>
+        <update_rate>10</update_rate>
         <!-- This ray plgin is only for visualization. -->
         <plugin name="${name}_plugin" filename="libros2_livox.so">
 			<ray>
@@ -57,10 +57,10 @@
 				<max_angle>${2*M_PI}</max_angle>
 				</horizontal>
 				<vertical>
-          <samples>360</samples>
-          <resolution>1</resolution>
-          <min_angle>${-0.0/180*M_PI}</min_angle>
-          <max_angle>${55.22/180*M_PI}</max_angle>
+				<samples>360</samples>
+				<resolution>1</resolution>
+				<min_angle>${-7.22/180*M_PI}</min_angle>
+				<max_angle>${55.22/180*M_PI}</max_angle>
 				</vertical>
 			  </scan>
 			  <range>

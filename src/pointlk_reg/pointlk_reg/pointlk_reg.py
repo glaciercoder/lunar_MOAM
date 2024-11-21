@@ -23,7 +23,7 @@ class PointLK_reg(Node):
 
         self.declare_parameter('robot1', '0') # The first robot
         self.declare_parameter('robot2', '1') # The second robot
-        self.declare_parameter('pretrained_path', '/home/wbc/results/ex1_pointlk_0915_model_best.pth') 
+        self.declare_parameter('pretrained_path', '/home/glacier-dssl/results/ex1_pointlk_0915_model_best.pth') 
 
         robot1 = 'robot' + self.get_parameter('robot1').get_parameter_value()._string_value
         robot2 = 'robot' + self.get_parameter('robot2').get_parameter_value()._string_value
@@ -39,6 +39,7 @@ class PointLK_reg(Node):
         self.ts = ApproximateTimeSynchronizer(self.subs, queue_size=5, slop=0.1)
         self.ts.registerCallback(self.ts_callback)
         self.g = None
+        self.old_g = None
 
         self.publisher_ = self.create_publisher(Odometry, odom_topic, 10)
         self.timer = self.create_timer(0.5, self.publish_odometry)
@@ -62,25 +63,29 @@ class PointLK_reg(Node):
         nd0 = self.data_dispose(p0)
         nd1 = self.data_dispose(p1)
 
-        print(nd0.shape)
-        data0 = torch.from_numpy(nd0)
-        data1 = torch.from_numpy(nd1)
-        self.g = self.action.do_estimate(data0, data1, self.model, self.device)
-        print(self.g)
+        # print(nd0.shape)
+        if nd0 is not None and nd1 is not None:
+            data0 = torch.from_numpy(nd0)
+            data1 = torch.from_numpy(nd1)
+            self.old_g = self.g
+            self.g = self.action.do_estimate(data0, data1, self.model, self.device)
+            print(self.g)
         self.get_logger().info('Registration finished')
 
     def data_dispose(self, p):
         nd = ros2_numpy.numpify(p) # [n,3]
-        print(nd.shape)
+        print(f"original shape:{nd.shape}")
         nd = nd.view((np.float32, len(nd.dtype.names)))
         nd = nd[~np.all(nd == 0, axis=1)]
-        print(nd.shape)
+        print(f"filtered zero:{nd.shape}")
         norms = np.linalg.norm(nd, axis=1)
         indices = np.where(norms <= self.scan_range)[0]
         nd = nd[indices]
         print(nd.shape)
-        nd = nd[nd[:, 2] > 0]
-        print(nd.shape)
+        nd = nd[nd[:, 2] > 0.01]
+        print(f"filtered ground:{nd.shape}")
+        if nd.shape[0] == 0:
+            return None
         indices = np.random.choice(nd.shape[0], self.sample_num, replace=True)
         nd = nd[indices]
         nd = np.expand_dims(nd, axis=0)
@@ -91,15 +96,32 @@ class PointLK_reg(Node):
         # Create the Odometry message
         if self.g == None:
             return
+        
+        translation = self.g[0, :3, 3]
+        rotation_matrix = self.g[0, :3, :3]
+        if self.old_g is not None:
+            old_translation = self.old_g[0, :3, 3]
+            old_rotation_matrix = self.old_g[0, :3, :3]
+            # Check rotation difference using the Frobenius norm
+            rotation_difference = torch.norm(rotation_matrix - old_rotation_matrix, p='fro')
+
+            # Check translation difference using Euclidean distance
+            translation_difference = torch.norm(translation - old_translation, p=2)
+
+            rotation_threshold = 0.5  # Define rotation threshold
+            translation_threshold = 0.8  # Define translation threshold
+
+            if rotation_difference > rotation_threshold or translation_difference > translation_threshold:
+                print("The new transformation matrix differs too much in rotation or translation.")
+                return 
+
         odometry = Odometry()
         
         # Populate with example data
         odometry.header.stamp = self.get_clock().now().to_msg()
         odometry.header.frame_id = self.odom_parent
         odometry.child_frame_id = self.odom_child
-
-        translation = self.g[0, :3, 3]
-        rotation_matrix = self.g[0, :3, :3]
+        
         # Convert to numpy arrays for easier manipulation
         trans = translation.cpu().detach()
         rot = rotation_matrix.cpu().detach()
