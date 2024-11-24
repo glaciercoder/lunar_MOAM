@@ -70,7 +70,7 @@ class PointLK_reg(Node):
             self.old_g = self.g
             self.g = self.action.do_estimate(data0, data1, self.model, self.device)
             print(self.g)
-        self.get_logger().info('Registration finished')
+        # self.get_logger().info('Registration finished')
 
     def data_dispose(self, p):
         nd = ros2_numpy.numpify(p) # [n,3]
@@ -154,7 +154,7 @@ class PointLK_reg(Node):
         
         # Publish the message
         self.publisher_.publish(odometry)
-        self.get_logger().info('Published odometry')
+        self.get_logger().info(f'Published odometry: {str(self.odom_parent)}->{str(self.odom_child)}')
 
 class Action:
     def __init__(self):

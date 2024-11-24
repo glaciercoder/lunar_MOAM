@@ -117,7 +117,7 @@ class ModelStatePlot(Node):
         self.relative_odom = np.zeros((pair_count, 3))
         
         pair_idx = 0
-        print("Compute callback")
+        print(f"Compute callback")
         for i in range(self.robot_num - 1):
             for j in range(i + 1, self.robot_num):
                 self.relative_odom[pair_idx] = self.new_states[j] - self.new_states[i]

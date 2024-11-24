@@ -21,11 +21,11 @@ from globals import *
 
 def generate_launch_description():
     robots = [
-        {'name': 'robot0', 'x_pos': 0.0, 'y_pos': 0.5, 'z_pos': 0.01,
+        {'name': 'robot0', 'x_pos': 0.0, 'y_pos': 0.5, 'z_pos': 1.01,
             "color_name" : 'Yellow', "color_rgb" : "1 1 0 1"},
-        {'name': 'robot1', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 0.01,
+        {'name': 'robot1', 'x_pos': 0.0, 'y_pos': -0.5, 'z_pos': 1.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"},
-        {'name': 'robot2', 'x_pos': 0.5, 'y_pos': -0.5, 'z_pos': 0.01,
+        {'name': 'robot2', 'x_pos': 0.5, 'y_pos': -0.5, 'z_pos': 1.01,
             "color_name" : 'Blue', "color_rgb" : "0 0 1 1"}
     ]
 

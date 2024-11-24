@@ -63,7 +63,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration("use_sim_time", default="true")
 
     # ROS configuration
-    pointcloud_topic = LaunchConfiguration("topic", default="/robot0/mid360_PointCloud2")
+    pointcloud_topic = LaunchConfiguration("topic", default="/robot2/mid360_PointCloud2")
     visualize = LaunchConfiguration("visualize", default="true")
 
     # Optional ros bag play
@@ -72,7 +72,7 @@ def generate_launch_description():
     # tf tree configuration, these are the likely parameters to change and nothing else
     base_frame = LaunchConfiguration("base_frame", default="robot0/base_link")  # (base_link/base_footprint)
     lidar_odom_frame = LaunchConfiguration("lidar_odom_frame", default="lidar_odom")
-    publish_odom_tf = LaunchConfiguration("publish_odom_tf", default=False)
+    publish_odom_tf = LaunchConfiguration("publish_odom_tf", default=True)
     invert_odom_tf = LaunchConfiguration("invert_odom_tf", default=False)
 
     # KISS-ICP node

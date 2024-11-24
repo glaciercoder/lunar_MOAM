@@ -51,7 +51,7 @@ class RelativeOdomPlot(Node):
         for i in range(self.robot_num - 1):
             for j in range(i + 1, self.robot_num):
                 print(f"i : {i},j: {j}, idx:{sub_idx}")
-                topic_name = f'/fused_odom_{self.robot_name[i]}_{self.robot_name[j]}'
+                topic_name = f'/pointlk_reg_{self.robot_name[i]}_{self.robot_name[j]}'
                 self.fused_subs[topic_name] = self.create_subscription(
                     Odometry,
                     topic_name,
@@ -65,8 +65,8 @@ class RelativeOdomPlot(Node):
         # relative_odom: [n * (n - 1) / 2, 3] (dx, dy, dz) - relative positions between robot pairs
         self.fused_odom = None
         self.relative_odom = None
-        self.relative_odom_history = [([], []) for _ in range(pair_count)]
-        self.fused_odom_history = [([], []) for _ in range(pair_count)]
+        self.relative_odom_history = [[[], []] for _ in range(pair_count)]
+        self.fused_odom_history = [[[], []] for _ in range(pair_count)]
 
         # Plot setup
         self.fig, self.ax = plt.subplots()
@@ -84,9 +84,9 @@ class RelativeOdomPlot(Node):
         self.fused_odom = np.zeros((pair_count, 3))       
         idx = (i * self.robot_num - (i * (i + 1)) // 2 + j - i - 1)
         # Update self.fused_odom with the new odometry data
-        self.fused_odom[idx, 0] = msg.pose.pose.position.x
-        self.fused_odom[idx, 1] = msg.pose.pose.position.y
-        self.fused_odom[idx, 2] = msg.pose.pose.position.z
+        self.fused_odom_history[idx][0].append(msg.pose.pose.position.x)
+        self.fused_odom_history[idx][1].append(msg.pose.pose.position.y)
+
     
     def point_callback(self, msg, i, j):
         # Store the received data in the numpy array
@@ -114,21 +114,18 @@ class RelativeOdomPlot(Node):
                     
                     
                     # Append the latest data for fused odometry if available
-                    if self.fused_odom is not None:
-                        fused_x, fused_y = self.fused_odom_history[i]
-                        fused_x.append(self.fused_odom[i, 0])
-                        fused_y.append(self.fused_odom[i, 1])
-                        fused_line.set_data(fused_x, fused_y)
+                    if self.fused_odom_history is not None:
+                        fused_line.set_data(self.fused_odom_history[i][0], self.fused_odom_history[i][1])
                        
                 
                 # Adjust plot limits dynamically
-                all_x = [x for pair in self.relative_odom_history for x in pair[0]] + \
-                        [x for pair in self.fused_odom_history for x in pair[0]]
-                all_y = [y for pair in self.relative_odom_history for y in pair[1]] + \
-                        [y for pair in self.fused_odom_history for y in pair[1]]
+                # all_x = [x for pair in self.relative_odom_history for x in pair[0]] + \
+                #         [x for pair in self.fused_odom_history for x in pair[0]]
+                # all_y = [y for pair in self.relative_odom_history for y in pair[1]] + \
+                #         [y for pair in self.fused_odom_history for y in pair[1]]
                 
-                self.ax.set_xlim(np.min(all_x) - 1, np.max(all_x) + 1)
-                self.ax.set_ylim(np.min(all_y) - 1, np.max(all_y) + 1)
+                self.ax.set_xlim( - 1,  + 1)
+                self.ax.set_ylim( - 1,  + 1)
                 
                 if not hasattr(self, '_legend_added'):
                     self.ax.legend()

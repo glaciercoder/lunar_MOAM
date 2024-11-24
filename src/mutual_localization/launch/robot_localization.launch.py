@@ -51,18 +51,16 @@ def robot_localization_node_gen(i, j):
                       'use_sim_time': True,
                       'odom0': pointlk_odom_topic,
                       'odom0_config': [True,  True,  False,
-                       False, False, False,
-                       False, False, False,
                        False, False, True,
-                       False, False, False] ,
-                       'odom0_pose_rejection_threshold': 5.0,
+                       False, False, False,
+                       False, False, False,
+                       False, False, False],
                        'odom1': wheel_rel_odom_topic,
                        'odom1_config': [False,  False,  False,
                                         False, False, False,
                                         True, True, False,
                                         False, False, True,
-                                        False, False, False],
-                       'odom1_twist_rejection_threshold': 1.0
+                                        False, False, False]
                     }
                     ],
     )

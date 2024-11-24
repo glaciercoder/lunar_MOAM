@@ -12,6 +12,9 @@ def_package_name = 'turtle_bot_description'
 global def_bringup_dir
 def_bringup_dir = os.path.expanduser("~/Projects/lunar_MOAM/src/" + def_package_name)
 
+global def_nav2_bringup_dir
+def_nav2_bringup_dir = get_package_share_directory("nav2_bringup")
+
 global def_launch_dir
 def_launch_dir = os.path.join(def_bringup_dir, 'launch')
 
@@ -49,7 +52,8 @@ global def_urdf
 def_urdf = os.path.join(def_bringup_dir,'description','robot.urdf.xacro')
 
 global def_world_path
-def_world_path = os.path.join(def_bringup_dir, 'worlds', 'small_shapes.sdf')
+# def_world_path = os.path.join(def_bringup_dir, 'worlds', 'small_shapes.sdf')
+def_world_path = os.path.join(def_bringup_dir, 'worlds', 'wall_world.sdf'),
 
 # ---
 
